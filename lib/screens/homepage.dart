@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:zpfirsttask/apicall/getAll_Languages.dart';
+import 'package:zpfirsttask/models/language_model.dart';
 import '../apicall/getallcountries.dart';
 import '../constant/app_text_constants.dart';
 import '../constant/color_constants.dart';
@@ -16,14 +19,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   DropGetXContoller getControl = DropGetXContoller();
-
-
-  // ignore: prefer_typing_uninitialized_variables
+  String? selectedLanguage;
   var countries;
+  var alllanguages;
   //search function
   var items = [];
   var indexpostion = [];
-  bool showerror = false;
   Future<void> filterSearchResults(String query) async {
     indexpostion.clear();
     List dummySearchList = [];
@@ -35,8 +36,6 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             dummyListData.add(item);
           });
-        }else{
-
         }
       }
       setState(() {
@@ -69,9 +68,91 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<List<Languages>> futureLang = getAllLanguagex();
+
   Future<List<Countrys>> future = getAllCountriesx();
 
-  // ignore: non_constant_identifier_names
+
+
+  Future<void> Filter(String query) async {
+    indexpostion.clear();
+    List dummySearchList = [];
+    dummySearchList.addAll(countries);
+    debugPrint('myaaa'+dummySearchList.toString());
+    if(query.isNotEmpty) {
+      List dummyListData = [];
+      for (var item in dummySearchList) {
+        debugPrint(item.languages.toString());
+        for(var i=0; i<item.languages.length; i++) {
+          Language lang = item.languages![i];
+          if(lang.name.toString().toLowerCase()==query.toLowerCase()) {
+            setState(() {
+              dummyListData.add(item);
+            });
+          }
+        }
+        }
+      setState(() {
+        items.clear();
+        items.addAll(dummyListData);
+        indexpostion.clear();
+        for(var i=0; i<items.length; i++){
+          final index = dummySearchList.indexWhere((element) =>
+          element.code == items[i].code);
+          indexpostion.add(index);
+        }
+      });
+      items.clear();
+      for(var i=0; i<indexpostion.length; i++){
+        items.add(countries[int.parse(indexpostion[i].toString())]);
+      }
+      return;
+    } else {
+      setState(() {
+        items.clear();
+      });
+    }
+  }
+
+  //dropdown element for filter
+  List<DropdownMenuItem<String>> buildDropDownItem(List<Languages> languages) {
+    return languages
+        .map((languages) => DropdownMenuItem<String>(
+      child: Text(languages.name),
+      value: languages.name,
+    ))
+        .toList();
+  }
+
+  Widget pickLanguage(
+      BuildContext context, AsyncSnapshot<List<Languages>> snapshot) {
+    var alllanguages = snapshot.data;
+
+    if (snapshot.connectionState == ConnectionState.done) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: DropdownButtonFormField(
+          decoration: const InputDecoration(
+            labelText: "Filter Using Language",
+            border: OutlineInputBorder(),
+          ),
+          items: buildDropDownItem(alllanguages!),
+          value: selectedLanguage,
+          onChanged: (String? lang) {
+            setState(() {
+              selectedLanguage = lang;
+              Filter(selectedLanguage!);
+              debugPrint(selectedLanguage.toString());
+            });
+          },
+        ),
+      );
+    }
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
   Widget ListCountries(
       BuildContext context, AsyncSnapshot<List<Countrys>> snapshot) {
     countries = snapshot.data;
@@ -100,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                                 const SizedBox(
                                     width: 30,
                                     child: Icon(Icons.circle, size: 16, color: Colors.grey,)),
-                                Expanded(child: Text(project.name.toString(), style: const TextStyle(fontSize: 15, color: Colors.white),)),
+                                    Expanded(child: Text(project.name.toString(), style: const TextStyle(fontSize: 15, color: Colors.white),)),
                               ],
                             )),
                           )),
@@ -312,8 +393,19 @@ class _HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width,
           child:  Column(
             children: [
+              const SizedBox(height: 20),
               SizedBox(
-                height: 100,
+                height: 70,
+                width: MediaQuery.of(context).size.width,
+                child: FutureBuilder<List<Languages>>(
+                  future: futureLang,
+                  builder: (context, snapshot) {
+                    return pickLanguage(context, snapshot);
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 70,
                 width: MediaQuery.of(context).size.width,
                 child:  Padding(
                     padding: const EdgeInsets.all(8.0),

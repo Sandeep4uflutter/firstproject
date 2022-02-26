@@ -1,8 +1,6 @@
 import 'package:graphql/client.dart';
 import '../constant/api_const.dart';
 
-
-
 final _httpLink = HttpLink(
   baseUrl,
 );

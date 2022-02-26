@@ -4,13 +4,11 @@ class Countrys {
   String? emoji;
   List<Language>? languages;
 
-
   Countrys.fromJson(Map<String, dynamic> json)
       : code = json["code"],
         name = json["name"],
         emoji = json["emoji"],
         languages = List<Language>.from(json["languages"].map((x) => Language.fromJson(x)));
-
 }
 
 class Language {

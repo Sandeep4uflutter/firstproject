@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zpfirsttask/routes/routes.dart';
 import 'package:zpfirsttask/screens/splash.dart';
+
 void main() {
   runApp(const MyApp());
 }

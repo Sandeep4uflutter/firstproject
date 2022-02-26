@@ -2,28 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
 import '../models/model.dart';
+import '../queries/allcountry_query.dart';
 import 'api.dart';
-
-
-const _getAllCountries = r'''
-query {
-  countries {
-    code,
-    name,
-    emoji,
-    languages {
-      code,
-      name
-    }
-  }
-  }
-''';
-
 
   Future<List<Countrys>> getAllCountriesx() async {
     var result = await client.query(
       QueryOptions(
-        document: gql(_getAllCountries),
+        document: gql(getAllCountries),
       ),
     );
     if (result.hasException) {
@@ -36,7 +21,6 @@ query {
       var country = Countrys.fromJson(res);
       countries.add(country);
     }
-   //debugPrint(json.toString());
     return countries;
   }
 
